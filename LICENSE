@@ -1,0 +1,49 @@
+ADVANCED THEME CUSTOMIZER SOURCE-AVAILABLE LICENSE v1.0
+
+Copyright (c) 2026 Advanced Theme Customizer contributors
+
+This license is source-available and is NOT an open-source license.
+
+1. PERMITTED USES
+
+You may:
+- use this software for personal, educational, research, and commercial
+	internal purposes;
+- modify this software for your own internal use;
+- submit improvements to the official upstream repository as pull requests.
+
+2. RESTRICTIONS
+
+Without prior written permission from the copyright holder(s), you may NOT:
+- redistribute this software, in whole or in part, in source or binary form;
+- republish this software to package registries, code hosting mirrors,
+	app stores, or any other distribution channel;
+- sublicense, sell, rent, lease, or otherwise commercially distribute this
+	software or derivative works;
+- remove or alter copyright, license, or attribution notices.
+
+3. CONTRIBUTIONS
+
+If you submit a contribution (including pull requests, patches, or code
+snippets), you grant the project maintainers a perpetual, worldwide,
+non-exclusive, royalty-free, irrevocable right to use, modify, and distribute
+that contribution under this license or any future license chosen for this
+project.
+
+4. TRADEMARKS
+
+This license does not grant any rights to use project names, logos, or marks,
+except as required for accurate attribution.
+
+5. NO WARRANTY
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+6. LIMITATION OF LIABILITY
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR
+OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.
