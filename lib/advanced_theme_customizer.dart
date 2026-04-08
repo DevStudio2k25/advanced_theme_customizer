@@ -1,5 +1,3 @@
-library advanced_theme_customizer;
-
 export 'src/advanced_customizer_config.dart';
 export 'src/advanced_customizer_controller.dart';
 export 'src/core/models/profile_models.dart';
@@ -8,7 +6,6 @@ export 'src/core/persistence/profile_store.dart';
 export 'src/core/registry/component_registry.dart';
 export 'src/core/resolver/style_resolver.dart';
 export 'src/integration/page_mode/page_customizer_launcher.dart';
-export 'src/integration/settings_mode/settings_customizer_launcher.dart';
 export 'src/panel/customizer_panel.dart';
 export 'src/preview/preview_bridge.dart';
 export 'src/theme_hooks/panel_skin_hooks.dart';

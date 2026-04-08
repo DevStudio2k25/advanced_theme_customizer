@@ -80,9 +80,21 @@ await openSettingsModeCustomizer<void>(
 
 // Per-page mode
 await openPageModeCustomizer<void>(
-	context: context,
-	controller: controller,
-	pageId: 'home',
+  context: context,
+  controller: controller,
+  pageId: 'home',
+);
+
+// Adaptive mode (bottom sheet on mobile, dialog on desktop/tablet)
+await openAdaptiveSettingsModeCustomizer<void>(
+  context: context,
+  controller: controller,
+);
+
+await openAdaptivePageModeCustomizer<void>(
+  context: context,
+  controller: controller,
+  pageId: 'home',
 );
 ```
 
@@ -151,6 +163,14 @@ controller.setPanelSectionVisibility(
 ## Example and tests
 
 - A complete host integration sample is available in `example/lib/main.dart`.
+- Run the demo app:
+
+```bash
+cd example
+flutter pub get
+flutter run
+```
+
 - Unit and widget tests are in `test/`.
 
 Run tests:

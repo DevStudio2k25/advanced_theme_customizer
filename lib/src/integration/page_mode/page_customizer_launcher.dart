@@ -1,68 +1,65 @@
 import 'package:flutter/material.dart';
 
 import '../../advanced_customizer_controller.dart';
-import '../_unsaved_changes_guard.dart';
 import '../../panel/customizer_panel.dart';
+import '../_unsaved_changes_guard.dart';
 
 Future<T?> openPageModeCustomizer<T>({
   required BuildContext context,
   required AdvancedCustomizerController controller,
   required String pageId,
   Widget? panelChild,
-  bool useBottomSheet = true,
   bool protectUnsavedChanges = true,
 }) async {
   controller.openCustomizerForPage(pageId);
   controller.enableInPagePreview(pageId: pageId);
 
   try {
-    if (useBottomSheet) {
-      return await showModalBottomSheet<T>(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: !protectUnsavedChanges,
-        enableDrag: !protectUnsavedChanges,
+    return await Navigator.of(context).push<T>(
+      MaterialPageRoute<T>(
         builder: (BuildContext context) {
-          return WillPopScope(
-            onWillPop: () async {
-              if (!protectUnsavedChanges) {
-                return true;
+          Future<void> requestClose(BuildContext routeContext) async {
+            if (protectUnsavedChanges) {
+              final bool canClose = await guardCustomizerExit(
+                routeContext,
+                controller,
+              );
+              if (!canClose || !routeContext.mounted) {
+                return;
               }
-              return guardCustomizerExit(context, controller);
+            }
+            if (routeContext.mounted) {
+              Navigator.of(routeContext).pop();
+            }
+          }
+
+          return PopScope(
+            canPop: !protectUnsavedChanges,
+            onPopInvokedWithResult: (bool didPop, Object? result) async {
+              if (didPop || !protectUnsavedChanges) {
+                return;
+              }
+              final bool canClose = await guardCustomizerExit(
+                context,
+                controller,
+              );
+              if (canClose && context.mounted) {
+                Navigator.of(context).pop();
+              }
             },
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: AdvancedCustomizerPanel(
+            child: Scaffold(
+              body: SafeArea(
+                child: AdvancedCustomizerPage(
                   controller: controller,
                   child: panelChild,
+                  onCloseRequested: () => requestClose(context),
                 ),
               ),
             ),
           );
         },
-      );
-    }
-
-    return await showDialog<T>(
-      context: context,
-      barrierDismissible: !protectUnsavedChanges,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            if (!protectUnsavedChanges) {
-              return true;
-            }
-            return guardCustomizerExit(context, controller);
-          },
-          child: Dialog(
-            child: AdvancedCustomizerPanel(
-              controller: controller,
-              child: panelChild,
-            ),
-          ),
-        );
-      },
+        fullscreenDialog: true,
+      ),
     );
   } finally {
     controller.disableInPagePreview();

@@ -30,6 +30,10 @@ class AdvancedCustomizerPanelStrings {
     this.allGroupsLabel = 'All groups',
     this.allComponentTypesLabel = 'All component types',
     this.componentsLabel = 'Components',
+    this.componentSearchHint = 'Search components',
+    this.selectAllLabel = 'Select All',
+    this.clearSelectionLabel = 'Clear',
+    this.selectedCountLabel = 'Selected',
     this.statesLabel = 'States',
     this.fillLabel = 'Fill',
     this.borderLabel = 'Border',
@@ -57,6 +61,10 @@ class AdvancedCustomizerPanelStrings {
   final String allGroupsLabel;
   final String allComponentTypesLabel;
   final String componentsLabel;
+  final String componentSearchHint;
+  final String selectAllLabel;
+  final String clearSelectionLabel;
+  final String selectedCountLabel;
   final String statesLabel;
   final String fillLabel;
   final String borderLabel;

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const AdvancedComponentRegistry registry = AdvancedComponentRegistry(
     pages: <AdvancedPageDescriptor>[
+      AdvancedPageDescriptor(pageId: 'discover', displayName: 'Discover'),
       AdvancedPageDescriptor(pageId: 'home', displayName: 'Home'),
     ],
     groups: <AdvancedComponentGroupDescriptor>[
@@ -29,6 +30,27 @@ void main() {
         componentTypeId: 'button.secondary',
         displayName: 'Home Secondary Button',
       ),
+      AdvancedComponentDescriptor(
+        componentId: 'home.preview.aspect',
+        pageId: 'home',
+        groupId: 'home.actions',
+        componentTypeId: 'preview.aspect',
+        displayName: 'Aspect Preview',
+        previewBuilder: _buildAspectPreview,
+      ),
+      AdvancedComponentDescriptor(
+        componentId: 'discover.search.input',
+        pageId: 'discover',
+        componentTypeId: 'search.input',
+        displayName: 'Discover Search Input',
+      ),
+      AdvancedComponentDescriptor(
+        componentId: 'discover.tall.preview',
+        pageId: 'discover',
+        componentTypeId: 'preview.tall',
+        displayName: 'Tall Preview',
+        previewBuilder: _buildTallPreview,
+      ),
     ],
   );
 
@@ -44,62 +66,58 @@ void main() {
     );
   }
 
-  testWidgets('panel scope dropdown updates controller scope', (
-    WidgetTester tester,
-  ) async {
+  Widget buildPageHarness(AdvancedCustomizerController controller) {
+    return MaterialApp(
+      home: Scaffold(body: AdvancedCustomizerPage(controller: controller)),
+    );
+  }
+
+  Widget buildClosableHarness(
+    AdvancedCustomizerController controller,
+    VoidCallback onClose,
+  ) {
+    return MaterialApp(
+      home: Scaffold(
+        body: AdvancedCustomizerPanel(
+          controller: controller,
+          onCloseRequested: () async {
+            onClose();
+          },
+        ),
+      ),
+    );
+  }
+
+  testWidgets('page chip updates active page', (WidgetTester tester) async {
     final AdvancedCustomizerController controller = buildController();
 
     await tester.pumpWidget(buildPanelHarness(controller));
 
-    expect(controller.activeScope, AdvancedCustomizerScope.global);
+    expect(controller.effectivePageId, 'discover');
 
-    final Finder scopeField = find.byWidgetPredicate(
-      (Widget widget) =>
-          widget is DropdownButtonFormField<AdvancedCustomizerScope>,
-    );
-    expect(scopeField, findsOneWidget);
-
-    await tester.tap(scopeField);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('page').last);
+    await tester.tap(find.text('home').last);
     await tester.pumpAndSettle();
 
     expect(controller.activeScope, AdvancedCustomizerScope.page);
+    expect(controller.effectivePageId, 'home');
   });
 
-  testWidgets('component checkbox selection updates selectedComponents', (
+  testWidgets('component preview selection opens style editor', (
     WidgetTester tester,
   ) async {
     final AdvancedCustomizerController controller = buildController();
 
+    controller.setActivePage('home');
     await tester.pumpWidget(buildPanelHarness(controller));
 
-    final Finder checkboxTile = find.text('Home Primary Button').first;
-    await tester.ensureVisible(checkboxTile);
-    await tester.tap(checkboxTile);
+    final Finder componentTile = find.text('Home Primary Button').first;
+    await tester.ensureVisible(componentTile);
+    await tester.tap(componentTile);
     await tester.pumpAndSettle();
 
-    expect(controller.selectedComponents, contains('home.button.primary'));
-  });
-
-  testWidgets('component type dropdown updates active component type', (
-    WidgetTester tester,
-  ) async {
-    final AdvancedCustomizerController controller = buildController();
-
-    await tester.pumpWidget(buildPanelHarness(controller));
-
-    final Finder stringDropdowns = find.byWidgetPredicate(
-      (Widget widget) => widget is DropdownButtonFormField<String>,
-    );
-    expect(stringDropdowns, findsNWidgets(3));
-
-    await tester.tap(stringDropdowns.last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('button.secondary').last);
-    await tester.pumpAndSettle();
-
-    expect(controller.activeComponentTypeId, 'button.secondary');
+    expect(controller.selectedComponents, <String>{'home.button.primary'});
+    expect(find.text('Editing target'), findsOneWidget);
+    expect(find.text('Back'), findsOneWidget);
   });
 
   testWidgets('apply and discard buttons enforce draft semantics', (
@@ -107,8 +125,9 @@ void main() {
   ) async {
     final AdvancedCustomizerController controller = buildController();
 
+    controller.setActivePage('home');
     controller.setSelectedComponents(<String>{'home.button.primary'});
-    controller.startDraftSession(AdvancedCustomizerScope.global);
+    controller.startDraftSession(AdvancedCustomizerScope.page);
     controller.setFill(const Color(0xFF112233));
 
     await tester.pumpWidget(buildPanelHarness(controller));
@@ -131,9 +150,9 @@ void main() {
               AdvancedCustomizerState.defaultState,
             )
             as Color;
-    expect(appliedColor.value, 0xFF112233);
+    expect(appliedColor.toARGB32(), 0xFF112233);
 
-    controller.startDraftSession(AdvancedCustomizerScope.global);
+    controller.startDraftSession(AdvancedCustomizerScope.page);
     controller.setFill(const Color(0xFF334455));
     await tester.pumpAndSettle();
 
@@ -151,7 +170,7 @@ void main() {
               AdvancedCustomizerState.defaultState,
             )
             as Color;
-    expect(afterDiscard.value, 0xFF112233);
+    expect(afterDiscard.toARGB32(), 0xFF112233);
   });
 
   testWidgets('reset component action clears selected draft style', (
@@ -159,11 +178,14 @@ void main() {
   ) async {
     final AdvancedCustomizerController controller = buildController();
 
+    controller.setActivePage('home');
     controller.setSelectedComponents(<String>{'home.button.primary'});
-    controller.startDraftSession(AdvancedCustomizerScope.global);
+    controller.startDraftSession(AdvancedCustomizerScope.page);
     controller.setFill(const Color(0xFFAA0000));
 
     await tester.pumpWidget(buildPanelHarness(controller));
+    await tester.tap(find.text('Style').last);
+    await tester.pumpAndSettle();
 
     final Finder resetComponentButton = find.text(
       controller.panelStrings.resetComponentLabel,
@@ -182,4 +204,100 @@ void main() {
 
     expect(resolvedAfterReset, isNull);
   });
+
+  testWidgets('header close button triggers close callback', (
+    WidgetTester tester,
+  ) async {
+    final AdvancedCustomizerController controller = buildController();
+    bool closed = false;
+
+    await tester.pumpWidget(
+      buildClosableHarness(controller, () {
+        closed = true;
+      }),
+    );
+
+    await tester.tap(find.byTooltip('Close customizer'));
+    await tester.pumpAndSettle();
+
+    expect(closed, isTrue);
+  });
+
+  testWidgets('preview builder with aspect ratio renders safely', (
+    WidgetTester tester,
+  ) async {
+    final AdvancedCustomizerController controller = buildController();
+
+    controller.setActivePage('home');
+    await tester.pumpWidget(buildPanelHarness(controller));
+
+    final Finder aspectTile = find.text('Aspect Preview').first;
+    await tester.ensureVisible(aspectTile);
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('preview builder with tall content renders safely', (
+    WidgetTester tester,
+  ) async {
+    final AdvancedCustomizerController controller = buildController();
+
+    controller.setActivePage('discover');
+    await tester.pumpWidget(buildPanelHarness(controller));
+
+    final Finder tallTile = find.text('Tall Preview').first;
+    await tester.ensureVisible(tallTile);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('page variant renders top action icons', (
+    WidgetTester tester,
+  ) async {
+    final AdvancedCustomizerController controller = buildController();
+
+    await tester.pumpWidget(buildPageHarness(controller));
+
+    expect(find.byTooltip(controller.panelStrings.undoLabel), findsOneWidget);
+    expect(find.byTooltip(controller.panelStrings.discardLabel), findsOneWidget);
+    expect(find.byTooltip(controller.panelStrings.applyLabel), findsOneWidget);
+    expect(find.text(controller.panelStrings.applyLabel), findsNothing);
+  });
+}
+
+Widget _buildAspectPreview(
+  BuildContext context,
+  AdvancedComponentDescriptor component,
+) {
+  return Row(
+    children: <Widget>[
+      AspectRatio(
+        aspectRatio: 0.75,
+        child: Container(color: Colors.blue),
+      ),
+      const SizedBox(width: 8),
+      const Expanded(child: Text('Preview')),
+    ],
+  );
+}
+
+Widget _buildTallPreview(
+  BuildContext context,
+  AdvancedComponentDescriptor component,
+) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: List<Widget>.generate(
+      10,
+      (int index) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Container(
+          width: double.infinity,
+          height: 24,
+          color: index.isEven ? Colors.teal : Colors.blueGrey,
+        ),
+      ),
+    ),
+  );
 }

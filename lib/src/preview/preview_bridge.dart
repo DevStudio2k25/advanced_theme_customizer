@@ -8,8 +8,8 @@ class AdvancedCustomizerPreviewBridge
   const AdvancedCustomizerPreviewBridge({
     super.key,
     required AdvancedCustomizerController controller,
-    required Widget child,
-  }) : super(notifier: controller, child: child);
+    required super.child,
+  }) : super(notifier: controller);
 
   static AdvancedCustomizerController? maybeOf(BuildContext context) {
     final AdvancedCustomizerPreviewBridge? bridge = context

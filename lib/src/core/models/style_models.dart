@@ -158,7 +158,7 @@ extension AdvancedCustomizerImportModeX on AdvancedCustomizerImportMode {
 }
 
 String colorToHex(Color color) {
-  final String hex = color.value
+  final String hex = color.toARGB32()
       .toRadixString(16)
       .padLeft(8, '0')
       .toUpperCase();

@@ -1,4 +1,12 @@
+import 'package:flutter/material.dart';
+
 import '../models/style_models.dart';
+
+typedef AdvancedComponentPreviewBuilder =
+    Widget Function(
+      BuildContext context,
+      AdvancedComponentDescriptor component,
+    );
 
 class AdvancedPageDescriptor {
   const AdvancedPageDescriptor({
@@ -32,6 +40,7 @@ class AdvancedComponentDescriptor {
     this.groupId,
     this.instanceId,
     this.displayName,
+    this.previewBuilder,
     this.isEditable = true,
     this.editableStates = kAdvancedCustomizerAllStates,
     this.editableProperties = const <AdvancedCustomizerProperty>{
@@ -50,6 +59,7 @@ class AdvancedComponentDescriptor {
   final String? groupId;
   final String? instanceId;
   final String? displayName;
+  final AdvancedComponentPreviewBuilder? previewBuilder;
   final bool isEditable;
   final List<AdvancedCustomizerState> editableStates;
   final Set<AdvancedCustomizerProperty> editableProperties;
